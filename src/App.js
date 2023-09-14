@@ -93,7 +93,8 @@ const Gameover = observer(
     componentDidMount() {
       let gameplayTime = 0
       if(gameStartTime){
-        gameplayTime = Date.now(gameStartTime);
+        gameplayTime = Date.now() - gameStartTime;
+        gameStartTime = undefined
       }
       sendEventToApp("GAME_OVER", { gameplayTime });
     }
