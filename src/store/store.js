@@ -2,8 +2,11 @@ import {bg, fg, bird, pipe } from './asset'
 import { height } from '../common/common';
 import { bg_h, bg_w, fg_h, fg_w, pipe_h, pipe_w, bird_h, bird_w} from '../common/Sprite'; //To get sprite properties
 import {action, observable , useStrict } from 'mobx';
+import { sendEventToApp } from '../utils/sendEventToApp';
 
 useStrict(true);
+
+let gameStartTime = undefined;
 
 const bg1 = new bg(guid(), 0, height - bg_h)
 const bg2 = new bg(guid(), bg_w, height - bg_h)
@@ -54,13 +57,17 @@ const updateBird = function(bird) {
     bird.velocity += bird.gravity;
   	bird.cy += bird.velocity;
 
-    if (bird.cy >= height - fg_h-10) {
-      bird.cy = height - fg_h-10;
+    if (bird.cy >= height - fg_h - 10) {
+      bird.cy = height - fg_h - 10;
       if (game.currentstate === states.Game) {
-
-            game.currentstate = states.Score;
-
-  		}
+        if (gameStartTime) {
+          let gameplayTime = 0;
+          gameplayTime = Date.now() - gameStartTime;
+          gameStartTime = undefined;
+          sendEventToApp("GAME_OVER", { gameplayTime });
+        }
+        game.currentstate = states.Score;
+      }
       // sets velocity to jump speed for correct rotation
       bird.velocity = bird._jump;
     }
@@ -106,6 +113,12 @@ const updatePipe = function() {
 
     // determine intersection
     if (r > d1) {
+      if (gameStartTime) {
+        let gameplayTime = 0;
+        gameplayTime = Date.now() - gameStartTime;
+        gameStartTime = undefined;
+        sendEventToApp("GAME_OVER", { gameplayTime });
+      }
       game.currentstate = states.Score;
     }
     //Move the pipe towards left
@@ -131,6 +144,7 @@ export const rungame = action(function() {
     store.frames = 1
     store.pipes = observable([])  //Initalize to empty empty on game start
 
+    gameStartTime = Date.now();
     game.currentstate= states.Game
 
 

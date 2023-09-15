@@ -5,9 +5,6 @@ import {bg,fg, bird0, bird1, bird2, pipeN, pipeS, gameover, _ok_, splash, ready}
 import {width, height} from './common/common';
 import { observer} from 'mobx-react';
 import {rungame, states} from './store/store';
-import { sendEventToApp } from './utils/sendEventToApp';
-
-let gameStartTime = undefined
 
 const SpriteWrapper = observer(class SpriteWrapper extends Component {
 
@@ -90,14 +87,6 @@ const Pipe = observer(
 
 const Gameover = observer(
   class Gameover extends Component {
-    componentDidMount() {
-      let gameplayTime = 0
-      if(gameStartTime){
-        gameplayTime = Date.now() - gameStartTime;
-        gameStartTime = undefined
-      }
-      sendEventToApp("GAME_OVER", { gameplayTime });
-    }
 
     render = () => {
       return (
@@ -155,13 +144,6 @@ const App = observer(class App extends Component {
 
   }
 
-  componentDidUpdate(){
-    const { currentstate } = this.props.game;
-    if(currentstate === states.Game){
-      gameStartTime = Date.now();
-    }
-  }
-
   render() {
     const {bgs, fgs, bird, pipes} = this.props.store
     const { currentstate } = this.props.game;
@@ -170,13 +152,7 @@ const App = observer(class App extends Component {
       width: width,
       height: height,
       maxWidth: '100%'
-      // width: "100%",
-      // height: "100vh",
     };
-
-    
-
-    console.log('states>>>', states, currentstate)
 
     return (
       <div className="App" id="fakingcanvas" style={style}>
